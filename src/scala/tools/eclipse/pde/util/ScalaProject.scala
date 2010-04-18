@@ -60,10 +60,9 @@ class ScalaProjectBuilder(workspace: IWorkspace) {
     
     val sourceEntry = getClasspathEntryOfSourceFolder(sourceFolder)
     val jreEntry = retrieveJreClasspathEntry
-   
-    // TODO add scala library classpath
+    val scalaEntry = retrieveScalaClasspathEntry
     
-    setClassPath(scalaProject, jreEntry, sourceEntry)
+    setClassPath(scalaProject, jreEntry, scalaEntry, sourceEntry)
     
     scalaProject
   }
@@ -99,10 +98,18 @@ class ScalaProjectBuilder(workspace: IWorkspace) {
     jreEntry
   }
 
+  private def retrieveScalaClasspathEntry = {
+    val scalaEntry = JavaCore.newContainerEntry(new Path(ScalaPlugin.plugin.scalaLibId))
+    if (scalaEntry == null) 
+      throw new IllegalStateException("Unable to retrieve Scala classpath entry")
+    
+    scalaEntry
+  }
+  
   private def setClassPath(scalaProject: IJavaProject, 
-      jreEntry: IClasspathEntry, sourceEntry: IClasspathEntry) = {
+      jreEntry: IClasspathEntry, scalaEntry: IClasspathEntry, sourceEntry: IClasspathEntry) = {
         
-    scalaProject.setRawClasspath(Array[IClasspathEntry](jreEntry, sourceEntry), 
+    scalaProject.setRawClasspath(Array[IClasspathEntry](jreEntry, scalaEntry, sourceEntry), 
         scalaProject.getOutputLocation, NO_MONITOR)
   }
 }
@@ -115,7 +122,11 @@ class ScalaProject(scalaProject: IJavaProject) {
   val sourceFolder = project.getFolder(SOURCE_PATH)
 
   def waitUntilAutomaticBuildCompletes = {
-    Job.getJobManager.join(ResourcesPlugin.FAMILY_AUTO_BUILD, NO_MONITOR)
+    try {
+      Job.getJobManager.join(ResourcesPlugin.FAMILY_AUTO_BUILD, NO_MONITOR)
+    } catch {
+      case _: InterruptedException => Thread.currentThread.interrupt
+    }
     
     this
   }
