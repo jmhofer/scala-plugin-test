@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Scala Plugin PDE Tests
+Bundle-SymbolicName: ch.epfl.lamp.sdt.core.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: ch.epfl.lamp.sdt.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit4;bundle-version="4.5.0",
+ scala.library
