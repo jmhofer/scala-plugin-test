@@ -72,7 +72,9 @@ class SearchEngineTest extends BackgroundJobWaiter {
         Array[SearchParticipant](SearchEngine.getDefaultSearchParticipant), 
         searchScope, new SearchHandler, null)
         
+    waitForBackgroundJobs
     waitForEndOfSearch
+    
     assertEquals(1, matchedElements.size)
   }
   
