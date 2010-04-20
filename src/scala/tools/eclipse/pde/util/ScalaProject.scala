@@ -133,7 +133,7 @@ class ScalaProject(scalaProject: IJavaProject) {
 
   def addSourcePackageFolder(relativeFilePath: String) = {
     val packageFolder = project.getFolder(
-        "%s/%s".format(sourceFolder.getFullPath, relativeFilePath))
+        "%s/%s".format(SOURCE_PATH, relativeFilePath))
     packageFolder.create(IResource.FORCE, true, NO_MONITOR)
     
     this
