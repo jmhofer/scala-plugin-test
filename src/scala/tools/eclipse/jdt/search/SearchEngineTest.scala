@@ -8,6 +8,8 @@ import org.junit.After
 
 import org.junit.Assert._
 
+import org.hamcrest.core.IsEqual._
+
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.ResourcesPlugin
 
@@ -65,13 +67,25 @@ class SearchEngineTest extends BackgroundJobWaiter {
   @Test
   def testExactMatchOfJavaClassInDefaultPackage = {
     searchForExactMatch("JavaInDefaultPackage")
-    assertEquals(1, matchedElements.size)
+    assertThat(matchedElements.size, equalTo(1))
   }
   
   @Test
   def testExactMatchOfScalaClassInDefaultPackage = {
     searchForExactMatch("ScalaInDefaultPackage")
-    assertEquals(1, matchedElements.size)
+    assertThat(matchedElements.size, equalTo(1))
+  }
+  
+  @Test
+  def testExactMatchOfScalaObjectInDefaultPackage = {
+    searchForExactMatch("ScalaInDefaultPackage$")
+    assertThat(matchedElements.size, equalTo(1))
+  }
+  
+  @Test
+  def testExactMatchOfScalaAnonymousFunctionInDefaultPackage = {
+    searchForExactMatch("ScalaInDefaultPackage$$anonfun$1")
+    assertThat(matchedElements.size, equalTo(1))
   }
   
   private def searchForExactMatch(className: String) = {
