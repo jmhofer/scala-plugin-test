@@ -19,23 +19,10 @@ import org.eclipse.jdt.core.search._
 import scala.tools.eclipse.pde.util.BackgroundJobWaiter
 import scala.tools.eclipse.pde.util.ScalaProject
 
+import scala.tools.eclipse.jdt.search.util.SearchHandler
+
 class ExactMatchInDefaultPackageTest extends BackgroundJobWaiter {
 
-  class SearchHandler extends SearchRequestor {
-    override def acceptSearchMatch(searchMatch: SearchMatch) = {
-      searchMatch.getElement match {
-        case javaElement: IJavaElement => {
-          matchedElements ::= javaElement
-          println("match found: %s".format(javaElement))
-        }
-      }
-    }
-    
-    override def endReporting = {
-      searchRunning.release
-    }
-  }
-  
   val searchRunning = new Semaphore(1)
 
   var scalaProject: ScalaProject = null
@@ -93,10 +80,14 @@ class ExactMatchInDefaultPackageTest extends BackgroundJobWaiter {
         className, IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, 
         SearchPattern.R_EXACT_MATCH)
         
+    val searchHandler = new SearchHandler(
+            matchedElements ::= _, 
+            searchRunning.release)
+    
     searchRunning.acquire
     searchEngine.search(scalaSearchPattern, 
         Array[SearchParticipant](SearchEngine.getDefaultSearchParticipant), 
-        searchScope, new SearchHandler, null)
+        searchScope, searchHandler, null)
         
     waitForBackgroundJobs
     waitForEndOfSearch
