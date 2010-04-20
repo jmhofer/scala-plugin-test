@@ -52,6 +52,7 @@ class SearchEngineTest extends BackgroundJobWaiter {
     scalaProject = ScalaProject.createIn(workspace).named("SearchEngineTest")
     scalaProject
       .addSourceFile("SearchEngineTest", "ScalaInDefaultPackage.scala")
+      .addSourceFile("SearchEngineTest", "JavaInDefaultPackage.java")
       .waitUntilAutomaticBuildCompletes
   }
 
@@ -62,20 +63,29 @@ class SearchEngineTest extends BackgroundJobWaiter {
   }
   
   @Test
-  def testExactMatchOfClassInDefaultPackage = {
-    val searchPattern = SearchPattern.createPattern(
-        "ScalaInDefaultPackage", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, 
+  def testExactMatchOfJavaClassInDefaultPackage = {
+    searchForExactMatch("JavaInDefaultPackage")
+    assertEquals(1, matchedElements.size)
+  }
+  
+  @Test
+  def testExactMatchOfScalaClassInDefaultPackage = {
+    searchForExactMatch("ScalaInDefaultPackage")
+    assertEquals(1, matchedElements.size)
+  }
+  
+  private def searchForExactMatch(className: String) = {
+    val scalaSearchPattern = SearchPattern.createPattern(
+        className, IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, 
         SearchPattern.R_EXACT_MATCH)
         
     searchRunning.acquire
-    searchEngine.search(searchPattern, 
+    searchEngine.search(scalaSearchPattern, 
         Array[SearchParticipant](SearchEngine.getDefaultSearchParticipant), 
         searchScope, new SearchHandler, null)
         
     waitForBackgroundJobs
     waitForEndOfSearch
-    
-    assertEquals(1, matchedElements.size)
   }
   
   private def waitForEndOfSearch = {
